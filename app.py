@@ -42,11 +42,13 @@ def after_request(response):
 
 
 @app.route('/')
-def index():
+@app.route('/sortby/<sorted_key>')
+def index(sorted_key='played'):
     top100 = []
     for record in Resultdb_top100_version_3.select():
         top100.append((record.url, json.loads(record.result)))
-    top100 = sorted(top100, key=lambda t: t[1]['played'], reverse=True)[:100]
+    top100 = sorted(top100,
+                    key=lambda t: t[1][sorted_key], reverse=True)[:100]
     return render_template('index.html', top100=top100)
 
 
