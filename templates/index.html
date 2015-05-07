@@ -6,10 +6,10 @@
         <tr>
         <td>排名</td>
         <td>歌单名称</td>
-        <td>歌单播放数</td>
+        <td><a href="{{ url_for('index', sorted_key='played') }}">歌单播放数</a></td>
         <td><a href="{{ url_for('index', sorted_key='favourites') }}">歌单收藏数</a></td>
-        <td>歌单评论数</td>
-        <td>歌单分享数</td>
+        <td><a href="{{ url_for('index', sorted_key='comments') }}">歌单评论数</a></td>
+        <td><a href="{{ url_for('index', sorted_key='share') }}">歌单分享数</a></td>
         <td>歌单标签</td>
         </tr>
     </thead>
