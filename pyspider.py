@@ -19,7 +19,7 @@ class Handler(BaseHandler):
         self.crawl('http://music.163.com/discover/playlist',
                    callback=self.index_page)
 
-    @config(age=10 * 24 * 60 * 60)
+    @config(age=60 * 60)
     def index_page(self, response):
         for each in response.doc('a[href^="http://music.163.com/playlist?id="]').items():
             if '$' not in each.attr.href:
@@ -33,7 +33,7 @@ class Handler(BaseHandler):
             "title": response.doc('h2').text(),
             "played": int(response.doc('strong').text()),
             "comments": get_number(response.doc('.j-cmt > i').text()),
-            "share": get_number(response.doc('.j-shr > i').text()),
+            "shares": get_number(response.doc('.j-shr > i').text()),
             "favourites": get_number(response.doc('.j-fav > i').text()),
             "tags": response.doc('.u-tag > i').text().split()
         }

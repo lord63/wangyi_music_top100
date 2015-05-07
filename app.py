@@ -22,7 +22,7 @@ class BaseModel(Model):
         database = database
 
 
-class Resultdb_top100_version_3(BaseModel):
+class Resultdb_top100_version_4(BaseModel):
     taskid = CharField(primary_key=True)
     result = CharField()
     updatetime = FloatField()
@@ -45,7 +45,7 @@ def after_request(response):
 @app.route('/sortby/<sorted_key>')
 def index(sorted_key='played'):
     top100 = []
-    for record in Resultdb_top100_version_3.select():
+    for record in Resultdb_top100_version_4.select():
         top100.append(json.loads(record.result))
     top100 = sorted(top100, key=lambda t: t[sorted_key], reverse=True)[:100]
     return render_template('index.html', top100=top100)
