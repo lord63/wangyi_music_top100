@@ -7,7 +7,11 @@ from pyspider.libs.base_handler import *
 
 
 def get_number(raw):
-    return int(re.search(r'\d+', raw).group())
+    matched = re.search(r'\d+', raw)
+    if matched:
+        return int(matched.group())
+    else:
+        return 0
 
 
 class Handler(BaseHandler):
