@@ -16,12 +16,12 @@
     {% for item in top100 %}
     <tr>
         <td>{{ loop.index }}</td>
-        <td><a href="{{ item[0] }}">{{ item[1]['title'] }}</a></td>
-        <td>{{ item[1]['played'] }}</td>
-        <td>{{ item[1]['favourites'] }}</td>
-        <td>{{ item[1]['comments'] }}</td>
-        <td>{{ item[1]['share'] }}</td>
-        <td>{{ item[1]['tags'] | join(' ') }}</td>
+        <td><a href="{{ item['url'] }}">{{ item['title'] }}</a></td>
+        <td>{{ item['played'] }}</td>
+        <td>{{ item['favourites'] }}</td>
+        <td>{{ item['comments'] }}</td>
+        <td>{{ item['share'] }}</td>
+        <td>{{ item['tags'] | join(' ') }}</td>
     </tr>
     {% endfor %}
   </table>

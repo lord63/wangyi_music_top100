@@ -46,9 +46,8 @@ def after_request(response):
 def index(sorted_key='played'):
     top100 = []
     for record in Resultdb_top100_version_3.select():
-        top100.append((record.url, json.loads(record.result)))
-    top100 = sorted(top100,
-                    key=lambda t: t[1][sorted_key], reverse=True)[:100]
+        top100.append(json.loads(record.result))
+    top100 = sorted(top100, key=lambda t: t[sorted_key], reverse=True)[:100]
     return render_template('index.html', top100=top100)
 
 
