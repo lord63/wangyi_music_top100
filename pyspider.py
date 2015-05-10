@@ -28,7 +28,8 @@ class Handler(BaseHandler):
         for each in response.doc('a[href^="http://music.163.com/playlist?id="]').items():
             if '$' not in each.attr.href:
                 self.crawl(each.attr.href, callback=self.detail_page)
-        self.crawl(response.doc('.znxt').attr.href, callback=self.index_page)
+        if response.doc('.znxt').attr.href != 'javascript:void(0)':
+           self.crawl(response.doc('.znxt').attr.href, callback=self.index_page)
 
     @config(priority=2)
     def detail_page(self, response):
