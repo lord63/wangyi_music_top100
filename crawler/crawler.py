@@ -42,6 +42,13 @@ def crawl_detailed_page(url):
             "tags": tags}
 
 
-def crawl_the_site(url):
-    """Crawl all the songlists in the site."""
-    pass
+def crawl_the_page(url):
+    """Crawl all the songlists in one page."""
+    base_url = 'http://music.163.com'
+    tree = html.fromstring(requests.get(url).text)
+    for item in tree.cssselect('.u-cover > a'):
+        crawl_detailed_page(base_url + item.get('href'))
+
+    next_page = tree.cssselect('.znxt')[0].get('href')
+    if next_page != 'javascript:void(0)':
+        crawl_the_page(base_url + next_page)
