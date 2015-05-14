@@ -29,9 +29,9 @@ def crawl_detailed_page(url):
     shares = extract_num(tree.cssselect('.u-btni-share i')[0].text)
     favourites = extract_num(tree.cssselect('.u-btni-fav i')[0].text)
     if tree.cssselect('.tags'):
-        tags = [item.text for item in tree.cssselect('.u-tag i')]
+        tags = ' '.join([item.text for item in tree.cssselect('.u-tag i')])
     else:
-        tags = []
+        tags = ''
 
     return {"title": title,
             "url": url,
