@@ -18,7 +18,8 @@ def extract_num(raw):
 
 def update_toplist():
     """Upadate songlists in the toplist."""
-    pass
+    for songlist in redis_server.lrange('toplist', 0, -1):
+        crawl_detailed_page(redis_server.hget(songlist, 'url'))
 
 
 def crawl_detailed_page(url):
