@@ -49,7 +49,7 @@ def crawl_detailed_page(url):
               "favourites": favourites,
               "tags": tags}
 
-    redis_server.rpush('songlist', key)
+    redis_server.rpush('songlists', key)
     redis_server.hmset(key, result)
 
 
@@ -64,8 +64,13 @@ def crawl_the_page(url):
     if next_page != 'javascript:void(0)':
         crawl_the_page(base_url + next_page)
 
-    redis_server.sort('songlist', start=0, num=400, by='*->played',
+    redis_server.sort('songlists', start=0, num=400, by='*->played',
                       desc=True, store='toplist')
     filter_num = redis_server.hget(redis_server.lindex('toplist', -1),
                                    'played')
     redis_server.set('filter_num', filter_num)
+    for songlist in set.difference(
+        set(redis_server.lrange('songlists', 0, -1)),
+        set(redis_server.lrange('toplist', 0, -1))):
+            redis_server.delete(songlist)
+            redis_server.lrem('songlists', 0, songlist)
