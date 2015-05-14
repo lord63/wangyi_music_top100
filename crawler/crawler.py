@@ -5,6 +5,9 @@ import re
 
 import requests
 from lxml import html
+import redis
+
+redis_server = redis.StrictRedis(host='localhost', port=6379)
 
 
 def extract_num(raw):
@@ -22,9 +25,13 @@ def crawl_detailed_page(url):
     """Get info from the songlist page."""
     response = requests.get(url)
     tree = html.fromstring(response.text)
+    filter_num = int(redis_server.get('filter_num')) or 0
 
-    title = tree.cssselect('h2')[0].text
     played = extract_num(tree.cssselect('strong')[0].text)
+    if played < filter_num:
+        return
+    key = 'wangyi:' + re.search(r'(?<=id=)\d+$', url).group()
+    title = tree.cssselect('h2')[0].text
     comments = extract_num(tree.cssselect('.u-btni-cmmt i')[0].text)
     shares = extract_num(tree.cssselect('.u-btni-share i')[0].text)
     favourites = extract_num(tree.cssselect('.u-btni-fav i')[0].text)
@@ -33,13 +40,16 @@ def crawl_detailed_page(url):
     else:
         tags = ''
 
-    return {"title": title,
-            "url": url,
-            "played": played,
-            "comments": comments,
-            "shares": shares,
-            "favourites": favourites,
-            "tags": tags}
+    result = {"title": title,
+              "url": url,
+              "played": played,
+              "comments": comments,
+              "shares": shares,
+              "favourites": favourites,
+              "tags": tags}
+
+    redis_server.rpush('songlist', key)
+    redis_server.hmset(key, result)
 
 
 def crawl_the_page(url):
@@ -52,3 +62,9 @@ def crawl_the_page(url):
     next_page = tree.cssselect('.znxt')[0].get('href')
     if next_page != 'javascript:void(0)':
         crawl_the_page(base_url + next_page)
+
+    redis_server.sort('songlist', start=0, num=400, by='*->played',
+                      desc=True, store='toplist')
+    filter_num = redis_server.hget(redis_server.lindex('toplist', -1),
+                                   'played')
+    redis_server.set('filter_num', filter_num)
