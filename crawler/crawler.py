@@ -28,11 +28,8 @@ def crawl_detailed_page(url):
     """Get info from the songlist page."""
     response = requests.get(url)
     tree = html.fromstring(response.text)
-    filter_num = int(redis_server.get('filter_num')) or 0
 
     played = extract_num(tree.cssselect('strong')[0].text)
-    if played < filter_num:
-        return
     key = 'wangyi:' + re.search(r'(?<=id=)\d+$', url).group()
     title = tree.cssselect('h2')[0].text
     comments = extract_num(tree.cssselect('.u-btni-cmmt i')[0].text)
@@ -59,8 +56,13 @@ def crawl_the_page(url):
     """Crawl all the songlists in one page."""
     base_url = 'http://music.163.com'
     tree = html.fromstring(requests.get(url).text)
-    for item in tree.cssselect('.u-cover > a'):
-        crawl_detailed_page(base_url + item.get('href'))
+
+    filter_num = redis_server.get('filter_num') or 0
+    for songlist, played in zip(tree.cssselect('.u-cover > a'),
+                                tree.cssselect('.nb')):
+        if int(played.text) < int(filter_num):
+            continue
+        crawl_detailed_page(base_url + songlist.get('href'))
 
     next_page = tree.cssselect('.znxt')[0].get('href')
     if next_page != 'javascript:void(0)':
