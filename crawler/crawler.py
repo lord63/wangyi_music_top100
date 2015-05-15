@@ -66,8 +66,7 @@ def crawl_the_page(url):
     if next_page != 'javascript:void(0)':
         crawl_the_page(base_url + next_page)
 
-    redis_server.sort('toplist', start=0, num=300, by='*->played',
-                      desc=True, store='toplist')
+    redis_server.sort('toplist', by='*->played', desc=True, store='toplist')
     filter_num = redis_server.hget(redis_server.lindex('toplist', -1),
                                    'played')
     redis_server.set('filter_num', filter_num)
