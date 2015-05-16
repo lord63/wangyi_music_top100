@@ -4,6 +4,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import re
+from functools import reduce
 
 import requests
 from lxml import html
@@ -74,7 +75,14 @@ def crawl_the_page(url):
                       desc=True, store='favourites_rank')
     redis_server.sort('songlists', start=0, num=100, by='*->shares',
                       desc=True, store='shares_rank')
-
+    # Union four top rank lists to get final toplist we will maintain
+    # to update regularly.
+    toplist = reduce(lambda a,b: set(a).union(b), [
+                     redis_server.lrange('played_rank', 0, -1),
+                     redis_server.lrange('comments_rank', 0, -1),
+                     redis_server.lrange('favourites_rank', 0, -1),
+                     redis_server.lrange('shares_rank', 0, -1)])
+    redis_server.lpush('toplist', *toplist)
     # for songlist in redis_server.lrange('toplist', 300, -1):
     #     redis_server.delete(songlist)
     # redis_server.ltrim('toplist', 0, 299)
