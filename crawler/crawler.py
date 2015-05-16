@@ -20,8 +20,9 @@ def extract_num(raw):
 
 def update_toplist():
     """Upadate songlists in the toplist."""
-    for songlist in redis_server.lrange('toplist', 0, -1):
-        crawl_detailed_page(redis_server.hget(songlist, 'url'))
+    # for songlist in redis_server.lrange('toplist', 0, -1):
+    #     crawl_detailed_page(redis_server.hget(songlist, 'url'))
+    pass
 
 
 def crawl_detailed_page(url):
@@ -48,7 +49,7 @@ def crawl_detailed_page(url):
               "favourites": favourites,
               "tags": tags}
 
-    redis_server.lpush('toplist', key)
+    redis_server.lpush('songlists', key)
     redis_server.hmset(key, result)
 
 
@@ -64,7 +65,16 @@ def crawl_the_page(url):
     if next_page != 'javascript:void(0)':
         crawl_the_page(base_url + next_page)
 
-    redis_server.sort('toplist', by='*->played', desc=True, store='toplist')
-    for songlist in redis_server.lrange('toplist', 300, -1):
-        redis_server.delete(songlist)
-    redis_server.ltrim('toplist', 0, 299)
+    # Generate 4 top rank lists.
+    redis_server.sort('songlists', start=0, num=100, by='*->played',
+                      desc=True, store='played_rank')
+    redis_server.sort('songlists', start=0, num=100, by='*->comments',
+                      desc=True, store='comments_rank')
+    redis_server.sort('songlists', start=0, num=100, by='*->favourites',
+                      desc=True, store='favourites_rank')
+    redis_server.sort('songlists', start=0, num=100, by='*->shares',
+                      desc=True, store='shares_rank')
+
+    # for songlist in redis_server.lrange('toplist', 300, -1):
+    #     redis_server.delete(songlist)
+    # redis_server.ltrim('toplist', 0, 299)
