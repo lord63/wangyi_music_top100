@@ -57,11 +57,7 @@ def crawl_the_page(url):
     base_url = 'http://music.163.com'
     tree = html.fromstring(requests.get(url).text)
 
-    filter_num = redis_server.get('filter_num') or 0
-    for songlist, played in zip(tree.cssselect('.u-cover > a'),
-                                tree.cssselect('.nb')):
-        if int(played.text) < int(filter_num):
-            continue
+    for songlist in tree.cssselect('.u-cover > a'):
         crawl_detailed_page(base_url + songlist.get('href'))
 
     next_page = tree.cssselect('.znxt')[0].get('href')
@@ -69,9 +65,6 @@ def crawl_the_page(url):
         crawl_the_page(base_url + next_page)
 
     redis_server.sort('toplist', by='*->played', desc=True, store='toplist')
-    filter_num = redis_server.hget(redis_server.lindex('toplist', -1),
-                                   'played')
-    redis_server.set('filter_num', filter_num)
     for songlist in redis_server.lrange('toplist', 300, -1):
         redis_server.delete(songlist)
     redis_server.ltrim('toplist', 0, 299)
