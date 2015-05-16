@@ -83,6 +83,12 @@ def crawl_the_page(url):
                      redis_server.lrange('favourites_rank', 0, -1),
                      redis_server.lrange('shares_rank', 0, -1)])
     redis_server.lpush('toplist', *toplist)
-    # for songlist in redis_server.lrange('toplist', 300, -1):
-    #     redis_server.delete(songlist)
-    # redis_server.ltrim('toplist', 0, 299)
+
+    # Clean up, remove unused songlist.
+    for songlist in set(redis_server.lrange('songlists', 0, -1)).difference(
+        redis_server.lrange('toplist', 0, -1)):
+            redis_server.delete(songlist)
+
+    # Remove ununsed songlist in "songlists" list.
+    redis_server.sort('toplist', store='songlists')
+
