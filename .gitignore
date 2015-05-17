@@ -13,6 +13,7 @@ temp/
 
 # database
 *.db
+*.rdb
 
 # Belows are from https://github.com/github/gitignore/blob/master/Python.gitignore
 ####################
