@@ -1,0 +1,1 @@
+I used pyspider to crawl wangyi music before. Now I use a crawler written by myself.
