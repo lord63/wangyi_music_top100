@@ -83,19 +83,18 @@ def generate_ranklists():
                       desc=True, store='shares_rank')
     # Union four top rank lists to get final toplist we will maintain
     # to update regularly.
-    toplist = reduce(lambda a,b: set(a).union(b), [
-                     redis_server.lrange('played_rank', 0, -1),
-                     redis_server.lrange('comments_rank', 0, -1),
-                     redis_server.lrange('favourites_rank', 0, -1),
-                     redis_server.lrange('shares_rank', 0, -1)])
-    redis_server.delete('toplist')   # Clear the old toplist.
+    toplist = reduce(lambda a, b: set(a).union(b), [
+        redis_server.lrange('played_rank', 0, -1),
+        redis_server.lrange('comments_rank', 0, -1),
+        redis_server.lrange('favourites_rank', 0, -1),
+        redis_server.lrange('shares_rank', 0, -1)])
+    redis_server.delete('toplist')  # Clear the old toplist.
     redis_server.lpush('toplist', *toplist)
 
     # Clean up, remove unused songlist.
     for songlist in set(redis_server.lrange('songlists', 0, -1)).difference(
-        redis_server.lrange('toplist', 0, -1)):
-            redis_server.delete(songlist)
+            redis_server.lrange('toplist', 0, -1)):
+        redis_server.delete(songlist)
 
     # Remove ununsed songlist in "songlists" list.
     redis_server.sort('toplist', alpha=True, store='songlists')
-
