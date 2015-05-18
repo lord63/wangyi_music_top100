@@ -4,6 +4,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import re
+import time
 from functools import reduce
 
 import requests
@@ -61,6 +62,9 @@ def crawl_the_page(url):
 
     for songlist in tree.cssselect('.u-cover > a'):
         crawl_detailed_page(base_url + songlist.get('href'))
+
+    # Take a rest, to avoid being banned.
+    time.sleep(5)
 
     next_page = tree.cssselect('.znxt')[0].get('href')
     if next_page != 'javascript:void(0)':
