@@ -1,0 +1,20 @@
+version: 1
+formatters:
+  simple:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+handlers:
+  logfile:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: simple
+    filename: crawler.log
+    maxBytes: 1024000
+    backupCount: 3
+loggers:
+  crawler:
+    level: DEBUG
+    handlers: [logfile]
+    propagate: no
+root:
+  level: DEBUG
+  handlers: [logfile]
