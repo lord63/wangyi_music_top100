@@ -1,0 +1,6 @@
+flask
+pypandoc
+pyyaml
+requests
+redis
+lxml
