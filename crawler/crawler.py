@@ -70,6 +70,8 @@ def crawl_the_page(url):
     if next_page != 'javascript:void(0)':
         crawl_the_page(base_url + next_page)
 
+
+def generate_ranklists():
     # Generate 4 top rank lists.
     redis_server.sort('songlists', start=0, num=100, by='*->played',
                       desc=True, store='played_rank')
