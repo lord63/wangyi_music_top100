@@ -29,9 +29,11 @@ def extract_num(raw):
 
 def update_toplist():
     """Upadate songlists in the toplist."""
-    # for songlist in redis_server.lrange('toplist', 0, -1):
-    #     crawl_detailed_page(redis_server.hget(songlist, 'url'))
-    pass
+    for index, songlist in enumerate(redis_server.lrange('toplist', 0, -1)):
+        if index % 35 == 0:
+            time.sleep(5)
+        crawl_detailed_page(redis_server.hget(songlist, 'url'))
+        logger.info('Update songlist: {0}'.format(songlist))
 
 
 def crawl_detailed_page(url):
