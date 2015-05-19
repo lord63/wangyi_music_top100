@@ -62,7 +62,8 @@ def crawl_detailed_page(url):
               "favourites": favourites,
               "tags": tags}
 
-    redis_server.lpush('songlists', key)
+    if key not in redis_server.lrange('songlists', 0, -1):
+        redis_server.lpush('songlists', key)
     redis_server.hmset(key, result)
 
 
