@@ -6,21 +6,15 @@ from __future__ import absolute_import, unicode_literals
 import re
 import time
 from functools import reduce
-import logging
-import logging.config
-from os import path
 
 import requests
 from lxml import html
 import redis
-import yaml
+
+from crawler.logger import logger
+
 
 redis_server = redis.StrictRedis(host='localhost', port=6379)
-with open(path.join(path.abspath(path.dirname(__file__)),
-          'logging.yaml')) as f:
-    logging_config = yaml.load(f)
-logging.config.dictConfig(logging_config)
-logger = logging.getLogger('crawler')
 
 
 def extract_num(raw):
