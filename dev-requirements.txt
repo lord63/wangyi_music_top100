@@ -1,5 +1,4 @@
 flask
-pypandoc
 pyyaml
 requests
 redis
