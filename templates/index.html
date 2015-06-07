@@ -21,9 +21,15 @@
         <td>{{ item['favourites'] }}</td>
         <td>{{ item['comments'] }}</td>
         <td>{{ item['shares'] }}</td>
-        <td>{{ item['tags'] }}</td>
+        <td>
+          {% for tag in item['tags'].split(' ') %}
+          <span class="badge">{{ tag }}</span>
+          {% endfor %}
+        </td>
     </tr>
     {% endfor %}
   </table>
 </div>
+<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<script src="{{ url_for('static', filename='wangyi.js') }}"></script>
 {% endblock %}
