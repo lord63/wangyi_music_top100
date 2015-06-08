@@ -6,6 +6,7 @@ from __future__ import absolute_import, unicode_literals
 import re
 import time
 from functools import reduce
+from datetime import datetime
 
 import requests
 from lxml import html
@@ -30,6 +31,8 @@ def update_toplist():
             time.sleep(5)
         crawl_detailed_page(redis_server.hget(songlist, 'url'))
         logger.info('Update songlist: {0}'.format(songlist))
+    redis_server.set('last_update',
+                     datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'))
 
 
 def crawl_detailed_page(url):
@@ -78,6 +81,8 @@ def crawl_the_page(url):
     if next_page != 'javascript:void(0)':
         logger.info('Crawl next page: {0}'.format(next_page))
         crawl_the_page(base_url + next_page)
+    redis_server.set('last_update',
+                     datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'))
 
 
 def generate_ranklists():
