@@ -43,7 +43,7 @@ def crawl_detailed_page(url):
     played = extract_num(tree.cssselect('strong')[0].text)
     key = 'wangyi:' + re.search(r'(?<=id=)\d+$', url).group()
     title = tree.cssselect('h2')[0].text
-    comments = extract_num(tree.cssselect('.u-btni-cmmt i')[0].text)
+    comments = tree.cssselect('#cnt_comment_count')[0].text
     shares = extract_num(tree.cssselect('.u-btni-share i')[0].text)
     favourites = extract_num(tree.cssselect('.u-btni-fav i')[0].text)
     if tree.cssselect('.tags'):
