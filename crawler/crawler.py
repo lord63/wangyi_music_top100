@@ -8,6 +8,7 @@ import re
 
 import requests
 from lxml import html
+import redis
 
 
 class Songlist(object):
@@ -68,3 +69,37 @@ class Songlist(object):
             'tags': self.tags
         }
         return songlist_meta
+
+
+class Crawler(object):
+    def __init__(self):
+        self.redis_server = redis.StrictRedis(host='localhost', port=6379)
+        self.base_url = 'http://music.163.com'
+
+    def crawl_one_songlist(self, songlist_url):
+        songlist = Songlist(songlist_url)
+        key = 'wangyi:songlist:{0}'.format(songlist.songlist_id)
+        self.redis_server.hmset(key, songlist.meta)
+        if key not in self.redis_server.lrange('wangyi:songlists', 0, -1):
+            self.redis_server.lpush('wangyi:songlists', key)
+
+    def crawl_one_page(self, page_url):
+        tree = html.fromstring(requests.get(page_url).text)
+        songlists = tree.cssselect('.u-cover > a')
+        for songlist in songlists:
+            self.crawl_one_songlist(self.base_url + songlist.get('href'))
+        next_page = tree.cssselect('.znxt')[0].get('href')
+        if next_page == 'javascript:void(0)':
+            return None
+        else:
+            return self.base_url + next_page
+
+    def crawl_the_site(self,
+                       start_url='http://music.163.com/discover/playlist'):
+        next_page = self.crawl_one_page(start_url)
+        while next_page is not None:
+            next_page = self.crawl_one_page(next_page)
+
+
+    def update(self):
+        pass
