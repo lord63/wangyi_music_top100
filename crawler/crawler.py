@@ -13,8 +13,7 @@ from lxml import html
 class Songlist(object):
     def __init__(self, url):
         self.url = url
-        response = requests.get(url)
-        self.tree = html.fromstring(response.text)
+        self.tree = html.fromstring(requests.get(url).text)
 
     def _get_num(self, css_expression):
         text_in_tag = self.tree.cssselect(css_expression)[0].text
@@ -27,6 +26,10 @@ class Songlist(object):
     @property
     def name(self):
         return self.tree.cssselect('h2')[0].text
+
+    @property
+    def songlist_id(self):
+        return int(re.search(r'(?<=id=)\d+$', self.url).group())
 
     @property
     def plays(self):
@@ -56,6 +59,7 @@ class Songlist(object):
     def meta(self):
         songlist_meta = {
             'name': self.name,
+            'id': self.songlist_id,
             'url': self.url,
             'plays': self.plays,
             'comments': self.comments,
