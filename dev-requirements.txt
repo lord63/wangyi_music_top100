@@ -4,3 +4,4 @@ requests
 redis
 lxml
 cssselect
+click
