@@ -33,13 +33,13 @@ class Worker(object):
         keywords = ['comments', 'plays', 'favourites', 'shares']
         for keyword in keywords:
             self._generate_rank_list_by_keyword(keyword)
-            self.logger.info('Generate ranklist for {0}'.format(keyword))
 
     def _generate_rank_list_by_keyword(self, keyword):
         sort_by = 'wangyi:songlist:*->{0}'.format(keyword)
         store_to = 'wangyi:ranklist:{0}'.format(keyword)
         self.redis.sort('wangyi:songlists', start=0, num=100,
                         by=sort_by, store=store_to, desc=True)
+        self.logger.info('Generate ranklist for {0}'.format(keyword))
 
     def generate_top_list(self):
         toplist = reduce(
@@ -57,7 +57,7 @@ class Worker(object):
         self.logger.info('Removed deprecated songlists')
 
         self.redis.delete('wangyi:songlists')
-        self.redis.lpuash('wangyi:songlists', *toplist)
+        self.redis.lpush('wangyi:songlists', *list(toplist))
         self.logger.info('Update the songlists')
 
     def update_all_songlists(
