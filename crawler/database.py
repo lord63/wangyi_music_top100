@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+    crawler/database.py
+    ~~~~~~~~~~~~~~~~~~~
+
+    provide some convenient ways to get data and communicate with
+    the redis server
+"""
+
 from __future__ import absolute_import
 
 import datetime

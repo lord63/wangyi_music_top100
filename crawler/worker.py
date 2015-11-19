@@ -5,7 +5,7 @@
     crawler/worker.py
     ~~~~~~~~~~~~~~~~
 
-    I work hard and help maintain the songlists. The mianly tasks including:
+    I work hard and help maintain the songlists. The mianly tasks are:
 
     * fetch new songlists by travelling all over the songlists in the site
     * update the songlists everyday to keep them healthy and fresh

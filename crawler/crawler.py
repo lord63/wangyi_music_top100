@@ -3,7 +3,7 @@
 
 """
     crawler/crawler.py
-    ~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~
 
     Yeah, I'm a crawler. I can crawl a songlist, or one page of songlists or
     crawl all the songlist. I'm at your service.
