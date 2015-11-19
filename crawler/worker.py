@@ -11,6 +11,8 @@
     * update the songlists everyday to keep them healthy and fresh
 """
 
+from __future__ import absolute_import
+
 from functools import reduce
 
 from crawler import config
