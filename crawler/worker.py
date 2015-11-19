@@ -53,8 +53,9 @@ class Worker(object):
         self.redis.delete('wangyi:songlists')
         self.redis.lpuash('wangyi:songlists', *toplist)
 
-    def update_all_songlists(self):
-        self.crawler.crawl_the_site()
+    def update_all_songlists(
+            self, start_url='http://music.163.com/discover/playlist'):
+        self.crawler.crawl_the_site(start_url)
         self.database.set_update_time()
 
     def update_top_list(self):

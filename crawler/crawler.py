@@ -103,8 +103,7 @@ class Crawler(object):
         else:
             return self.base_url + next_page
 
-    def crawl_the_site(self,
-                       start_url='http://music.163.com/discover/playlist'):
+    def crawl_the_site(self, start_url):
         next_page = self.crawl_one_page(start_url)
         while next_page is not None:
             next_page = self.crawl_one_page(next_page)
