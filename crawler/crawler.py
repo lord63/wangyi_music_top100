@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+    crawler/crawler.py
+    ~~~~~~~~~~~~~~~~
+
+    Yeah, I'm a crawler. I can crawl a songlist, or one page of songlists or
+    crawl all the songlist. I'm at your service.
+"""
+
 
 from __future__ import absolute_import
 
@@ -8,7 +16,8 @@ import re
 
 import requests
 from lxml import html
-import redis
+
+from crawler import config
 
 
 class Songlist(object):
@@ -73,7 +82,7 @@ class Songlist(object):
 
 class Crawler(object):
     def __init__(self):
-        self.redis_server = redis.StrictRedis(host='localhost', port=6379)
+        self.redis_server = config.redis_server
         self.base_url = 'http://music.163.com'
 
     def crawl_one_songlist(self, songlist_url):
@@ -99,7 +108,3 @@ class Crawler(object):
         next_page = self.crawl_one_page(start_url)
         while next_page is not None:
             next_page = self.crawl_one_page(next_page)
-
-
-    def update(self):
-        pass
