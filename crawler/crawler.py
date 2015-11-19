@@ -18,6 +18,7 @@ import requests
 from lxml import html
 
 from crawler import config
+from crawler import logger
 
 
 class Songlist(object):
@@ -84,19 +85,27 @@ class Crawler(object):
     def __init__(self):
         self.redis_server = config.redis_server
         self.base_url = 'http://music.163.com'
+        self.logger = logger.create_logger('crawler')
 
     def crawl_one_songlist(self, songlist_url):
+        self.logger.info('Start to crawl songlist: {0}'.format(songlist_url))
         songlist = Songlist(songlist_url)
+
         key = 'wangyi:songlist:{0}'.format(songlist.songlist_id)
         self.redis_server.hmset(key, songlist.meta)
+        self.logger.info('Save the songlist into database')
+
         if key not in self.redis_server.lrange('wangyi:songlists', 0, -1):
             self.redis_server.lpush('wangyi:songlists', key)
 
     def crawl_one_page(self, page_url):
+        self.logger.info('Start to crawl the page: {0}'.format(page_url))
         tree = html.fromstring(requests.get(page_url).text)
         songlists = tree.cssselect('.u-cover > a')
         for songlist in songlists:
             self.crawl_one_songlist(self.base_url + songlist.get('href'))
+        self.logger.info('The page: {0} has been crawled'.format(page_url))
+
         next_page = tree.cssselect('.znxt')[0].get('href')
         if next_page == 'javascript:void(0)':
             return None
@@ -104,6 +113,9 @@ class Crawler(object):
             return self.base_url + next_page
 
     def crawl_the_site(self, start_url):
+        self.logger.info('Start to crawl the site from: {0}'.format(start_url))
         next_page = self.crawl_one_page(start_url)
         while next_page is not None:
             next_page = self.crawl_one_page(next_page)
+        self.logger.info(
+            'Finish crawling the site from: {0}'.format(start_url))

@@ -18,6 +18,7 @@ from functools import reduce
 from crawler import config
 from crawler import crawler
 from crawler import database
+from crawler import logger
 
 
 class Worker(object):
@@ -25,11 +26,14 @@ class Worker(object):
         self.redis = config.redis_server
         self.crawler = crawler.Crawler()
         self.database = database.Database()
+        self.logger = logger.create_logger('worker')
 
     def generate_rank_lists(self):
+        self.logger.info('Start to generate the four rank lists')
         keywords = ['comments', 'plays', 'favourites', 'shares']
         for keyword in keywords:
             self._generate_rank_list_by_keyword(keyword)
+            self.logger.info('Generate ranklist for {0}'.format(keyword))
 
     def _generate_rank_list_by_keyword(self, keyword):
         sort_by = 'wangyi:songlist:*->{0}'.format(keyword)
@@ -45,21 +49,26 @@ class Worker(object):
              self.database.favourites_ranklist,
              self.database.shares_ranklist]
         )
+        self.logger.info('Generate the top list')
 
         for songlist in self.database.songlists:
             if songlist not in toplist:
                 self.redis.delete(songlist)
+        self.logger.info('Removed deprecated songlists')
 
         self.redis.delete('wangyi:songlists')
         self.redis.lpuash('wangyi:songlists', *toplist)
+        self.logger.info('Update the songlists')
 
     def update_all_songlists(
             self, start_url='http://music.163.com/discover/playlist'):
         self.crawler.crawl_the_site(start_url)
         self.database.set_update_time()
+        self.logger.info('Finish updating all the songlists')
 
     def update_top_list(self):
         for songlist in self.database.songlists:
             url = self.redis.hget(songlist, 'url')
             self.crawler.crawl_one_songlist(url)
         self.database.set_update_time()
+        self.logger.info('Finish updating the top list')
