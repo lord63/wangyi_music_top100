@@ -11,17 +11,18 @@
     * update the songlists everyday to keep them healthy and fresh
 """
 
-import datetime
 from functools import reduce
 
-from crawler.crawler import Crawler
 from crawler import config
+from crawler import crawler
+from crawler import database
 
 
 class Worker(object):
     def __init__(self):
         self.redis = config.redis_server
-        self.crawler = Crawler()
+        self.crawler = crawler.Crawler()
+        self.database = database.Database()
 
     def generate_rank_lists(self):
         keywords = ['comments', 'plays', 'favourites', 'shares']
@@ -37,14 +38,13 @@ class Worker(object):
     def generate_top_list(self):
         toplist = reduce(
             lambda x, y: set(x).union(set(y)),
-            [self.redis.lrange('wangyi:ranklist:comments', 0, -1),
-             self.redis.lrange('wangyi:ranklist:plays', 0, -1),
-             self.redis.lrange('wangyi:ranklist:favourites', 0, -1),
-             self.redis.lrange('wangyi:ranklist:shares', 0, -1)
-            ]
+            [self.database.comments_ranklist,
+             self.database.palys_ranklist,
+             self.database.favourites_ranklist,
+             self.database.shares_ranklist]
         )
 
-        for songlist in self.redis.lrange('wangyi:songlists', 0, -1):
+        for songlist in self.database.songlists:
             if songlist not in toplist:
                 self.redis.delete(songlist)
 
@@ -53,12 +53,10 @@ class Worker(object):
 
     def update_all_songlists(self):
         self.crawler.crawl_the_site()
-        self.redis.set('wangyi:latest_update',
-                       datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'))
+        self.database.set_update_time()
 
     def update_top_list(self):
-        for songlist in self.redis.lrange('wangyi:songlists', 0, -1):
+        for songlist in self.database.songlists:
             url = self.redis.hget(songlist, 'url')
             self.crawler.crawl_one_songlist(url)
-        self.redis.set('wangyi:latest_update',
-                       datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'))
+        self.database.set_update_time()
