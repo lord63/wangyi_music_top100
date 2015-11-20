@@ -35,7 +35,7 @@ class Worker(object):
             self._generate_rank_list_by_keyword(keyword)
 
     def _generate_rank_list_by_keyword(self, keyword):
-        sort_by = 'wangyi:songlist:*->{0}'.format(keyword)
+        sort_by = '*->{0}'.format(keyword)
         store_to = 'wangyi:ranklist:{0}'.format(keyword)
         self.redis.sort('wangyi:songlists', start=0, num=100,
                         by=sort_by, store=store_to, desc=True)
