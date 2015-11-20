@@ -88,12 +88,11 @@ class Crawler(object):
         self.logger = logger.create_logger('crawler')
 
     def crawl_one_songlist(self, songlist_url):
-        self.logger.info('Start to crawl songlist: {0}'.format(songlist_url))
         songlist = Songlist(songlist_url)
 
         key = 'wangyi:songlist:{0}'.format(songlist.songlist_id)
         self.redis_server.hmset(key, songlist.meta)
-        self.logger.info('Save the songlist into database')
+        self.logger.info('Crawled songlist: {0}'.format(songlist_url))
 
         if key not in self.redis_server.lrange('wangyi:songlists', 0, -1):
             self.redis_server.lpush('wangyi:songlists', key)
