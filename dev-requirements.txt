@@ -1,4 +1,6 @@
 flask
+Flask-Script
+Flask-cache
 pyyaml
 requests
 redis

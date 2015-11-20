@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="container">
+  <table class="table table-hover">
+    <thead>
+        <tr>
+        <td>排名</td>
+        <td>歌单名称</td>
+        <td><a href="{{ url_for('.index', sorted_key='plays') }}">歌单播放数</a></td>
+        <td><a href="{{ url_for('.index', sorted_key='favourites') }}">歌单收藏数</a></td>
+        <td><a href="{{ url_for('.index', sorted_key='comments') }}">歌单评论数</a></td>
+        <td><a href="{{ url_for('.index', sorted_key='shares') }}">歌单分享数</a></td>
+        <td>歌单标签</td>
+        </tr>
+    </thead>
+    {% for songlist in top100 %}
+    <tr>
+        <td>{{ loop.index }}</td>
+        <td><a href="{{ songlist['url'] }}">{{ songlist['name'] }}</a></td>
+        <td>{{ songlist['plays'] }}</td>
+        <td>{{ songlist['favourites'] }}</td>
+        <td>{{ songlist['comments'] }}</td>
+        <td>{{ songlist['shares'] }}</td>
+        <td>
+          {% for tag in songlist['tags'].split(', ') %}
+          <span class="badge">{{ tag }}</span>
+          {% endfor %}
+        </td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="text-center">最近更新于： {{ latest_update }}</p>
+</div>
+<script src="http://cdn.bootcss.com/jquery/1.11.2/jquery.min.js"></script>
+<script src="{{ url_for('static', filename='wangyi.js') }}"></script>
+{% endblock %}
