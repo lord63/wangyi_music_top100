@@ -62,9 +62,9 @@ class Songlist(object):
     def tags(self):
         if self.tree.cssselect('.tags'):
             tags = [tag.text for tag in self.tree.cssselect('.u-tag i')]
-            return tags
+            return ', '.join(tags)
         else:
-            return []
+            return ''
 
     @property
     def meta(self):
