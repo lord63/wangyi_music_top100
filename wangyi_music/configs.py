@@ -7,7 +7,7 @@ import redis
 
 
 class Config(object):
-    redis_server = redis.StrictRedis(host='localhost', port=6379,
+    redis_server = redis.StrictRedis(host='localhost', port=6379, db=1,
                                      decode_responses=True)
 
 
