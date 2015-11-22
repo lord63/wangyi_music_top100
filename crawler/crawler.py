@@ -27,7 +27,7 @@ class Songlist(object):
         self.tree = html.fromstring(requests.get(url).text)
 
     def _get_num(self, css_expression):
-        text_in_tag = self.tree.cssselect(css_expression)[0].text
+        text_in_tag = self.tree.cssselect(css_expression)[0].text_content()
         matched_num = re.search(r'\d+', text_in_tag)
         if matched_num is None:
             return 0
