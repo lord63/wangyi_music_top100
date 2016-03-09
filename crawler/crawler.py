@@ -48,15 +48,20 @@ class Songlist(object):
 
     @property
     def comments(self):
-        return self._get_num('.u-btni-cmmt i')
+        text_in_tag = self.tree.cssselect('.u-btni-cmmt i')[0].text_content()
+        matched_num = re.search(r'\d+', text_in_tag)
+        if matched_num is None:
+            return 0
+        num = int(matched_num.group())
+        return num
 
     @property
     def shares(self):
-        return self._get_num('.u-btni-share i')
+        return int(self.tree.cssselect('.u-btni-share')[0].get('data-count'))
 
     @property
     def favourites(self):
-        return self._get_num('.u-btni-fav i')
+        return int(self.tree.cssselect('.u-btni-fav')[0].get('data-count'))
 
     @property
     def tags(self):
