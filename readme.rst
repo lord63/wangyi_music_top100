@@ -21,7 +21,7 @@
 
     $ virtualenv venv
     $ . venv/bin/activate
-    (venv)$ pip install -r dev-requirments.txt
+    (venv)$ pip install -r requirements/requirments.txt
 
 运行爬虫
 ^^^^^^^^
