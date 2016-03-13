@@ -16,15 +16,14 @@ from __future__ import absolute_import
 from functools import reduce
 
 from crawler import config
-from crawler import crawler
 from crawler import database
 from crawler import logger
+from crawler.crawler import crawl_one_songlist, crawl_the_site
 
 
 class Worker(object):
     def __init__(self):
         self.redis = config.redis_server
-        self.crawler = crawler.Crawler()
         self.database = database.Database()
         self.logger = logger.create_logger('worker')
 
@@ -62,13 +61,13 @@ class Worker(object):
 
     def update_all_songlists(
             self, start_url='http://music.163.com/discover/playlist'):
-        self.crawler.crawl_the_site(start_url)
+        crawl_the_site(start_url)
         self.database.set_update_time()
         self.logger.info('Finish updating all the songlists')
 
     def update_top_list(self):
         for songlist in self.database.songlists:
             url = self.redis.hget(songlist, 'url')
-            self.crawler.crawl_one_songlist(url)
+            crawl_one_songlist.delay(url)
         self.database.set_update_time()
         self.logger.info('Finish updating the top list')

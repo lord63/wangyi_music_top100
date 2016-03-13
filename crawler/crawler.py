@@ -19,6 +19,7 @@ from lxml import html
 
 from crawler import config
 from crawler import logger
+from crawler.celery import celery_app
 
 
 class Songlist(object):
@@ -86,40 +87,41 @@ class Songlist(object):
         return songlist_meta
 
 
-class Crawler(object):
-    def __init__(self):
-        self.redis_server = config.redis_server
-        self.base_url = 'http://music.163.com'
-        self.logger = logger.create_logger('crawler')
+REDIS_SERVER = config.redis_server
+LOGGER = logger.create_logger('crawler')
 
-    def crawl_one_songlist(self, songlist_url):
-        songlist = Songlist(songlist_url)
 
-        key = 'wangyi:songlist:{0}'.format(songlist.songlist_id)
-        self.redis_server.hmset(key, songlist.meta)
-        self.logger.info('Crawled songlist: {0}'.format(songlist_url))
+@celery_app.task
+def crawl_one_songlist(songlist_url):
+    songlist = Songlist(songlist_url)
 
-        if key not in self.redis_server.lrange('wangyi:songlists', 0, -1):
-            self.redis_server.lpush('wangyi:songlists', key)
+    key = 'wangyi:songlist:{0}'.format(songlist.songlist_id)
+    REDIS_SERVER.hmset(key, songlist.meta)
+    LOGGER.info('Crawled songlist: {0}'.format(songlist_url))
 
-    def crawl_one_page(self, page_url):
-        self.logger.info('Start to crawl the page: {0}'.format(page_url))
-        tree = html.fromstring(requests.get(page_url).text)
-        songlists = tree.cssselect('.u-cover > a')
-        for songlist in songlists:
-            self.crawl_one_songlist(self.base_url + songlist.get('href'))
-        self.logger.info('The page: {0} has been crawled'.format(page_url))
+    if key not in REDIS_SERVER.lrange('wangyi:songlists', 0, -1):
+        REDIS_SERVER.lpush('wangyi:songlists', key)
 
-        next_page = tree.cssselect('.znxt')[0].get('href')
-        if next_page == 'javascript:void(0)':
-            return None
-        else:
-            return self.base_url + next_page
 
-    def crawl_the_site(self, start_url):
-        self.logger.info('Start to crawl the site from: {0}'.format(start_url))
-        next_page = self.crawl_one_page(start_url)
-        while next_page is not None:
-            next_page = self.crawl_one_page(next_page)
-        self.logger.info(
-            'Finish crawling the site from: {0}'.format(start_url))
+def crawl_one_page(page_url):
+    LOGGER.info('Start to crawl the page: {0}'.format(page_url))
+    tree = html.fromstring(requests.get(page_url).text)
+    songlists = tree.cssselect('.u-cover > a')
+    for songlist in songlists:
+        crawl_one_songlist.delay('http://music.163.com' + songlist.get('href'))
+    LOGGER.info('The page: {0} has been crawled'.format(page_url))
+
+    next_page = tree.cssselect('.znxt')[0].get('href')
+    if next_page == 'javascript:void(0)':
+        return None
+    else:
+        return 'http://music.163.com' + next_page
+
+
+def crawl_the_site(start_url):
+    LOGGER.info('Start to crawl the site from: {0}'.format(start_url))
+    next_page = crawl_one_page(start_url)
+    while next_page is not None:
+        next_page = crawl_one_page(next_page)
+    LOGGER.info(
+        'Finish crawling the site from: {0}'.format(start_url))
