@@ -4,6 +4,7 @@
 # virtualenv folder
 venv/
 venv33/
+venv35/
 
 # pycharm
 .idea/
