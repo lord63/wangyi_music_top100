@@ -14,7 +14,7 @@ redis_server = Config.redis_server
 
 
 @wangyi.route('/')
-@wangyi.route('/sortby/<sorted_key>')
+@wangyi.route('/sortby/<any(plays, favourites, shares, comments):sorted_key>')
 @cache.cached(timeout=3600)
 def index(sorted_key='plays'):
     ranklist = "wangyi:ranklist:{0}".format(sorted_key)
