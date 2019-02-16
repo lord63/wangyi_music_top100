@@ -21,10 +21,16 @@ from crawler import config
 from crawler import logger
 
 
+session = requests.Session()
+session.headers.update(
+  {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:28.0) '
+                 'Gecko/20100101 Firefox/28.0'})
+
+
 class Songlist(object):
     def __init__(self, url):
         self.url = url
-        self.tree = html.fromstring(requests.get(url).text)
+        self.tree = html.fromstring(session.get(url).text)
 
     def _get_num(self, css_expression):
         text_in_tag = self.tree.cssselect(css_expression)[0].text_content()
@@ -104,7 +110,7 @@ class Crawler(object):
 
     def crawl_one_page(self, page_url):
         self.logger.info('Start to crawl the page: {0}'.format(page_url))
-        tree = html.fromstring(requests.get(page_url).text)
+        tree = html.fromstring(session.get(page_url).text)
         songlists = tree.cssselect('.u-cover > a')
         for songlist in songlists:
             self.crawl_one_songlist(self.base_url + songlist.get('href'))
